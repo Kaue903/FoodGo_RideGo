@@ -17,13 +17,13 @@ from dataclasses import dataclass, field
 
 @dataclass
 class MenuItem:
-    """Um item do cardápio de um restaurante (ex.:'Pizza Margherita')."""
+    """Um item do cardápio de um restaurante (ex.: 'Pizza Margherita')."""
 
-    id: str             # Identificador único item
-    name: str           # Nome exibido para o usuário
-    description: str    # Descrição curta
-    price: float        # Preço unitário
-    emoji: str          # emoji usado como "imagem"
+    id: str            # identificador único do item (ex.: "m1")
+    name: str          # nome exibido para o usuário
+    description: str   # descrição curta (ingredientes, etc.)
+    price: float        # preço unitário em reais
+    emoji: str          # emoji usado como "imagem" ilustrativa do item
 
 
 @dataclass
@@ -38,10 +38,10 @@ class Restaurant:
     delivery_time: str
     delivery_fee: float
     menu: list[MenuItem] = field(default_factory=list)
-    #Par de cores usado no gradiente
-    #aparece na miniatura da lista e no banner da tela do cardápio
-    # da um identidade visual para cada categoria
-    banner_colors: tuple[str, str] = ("#F9800", "#FF5252")
+    # Par de cores (início/fim) usado no gradiente visual do restaurante —
+    # aparece na miniatura da lista e no banner da tela de cardápio, dando
+    # uma identidade visual própria para cada categoria de comida.
+    banner_colors: tuple[str, str] = ("#FF9800", "#FF5252")
 
     def find_item(self, item_id: str) -> MenuItem | None:
         """Procura um item do cardápio pelo id. Retorna None se não achar."""
@@ -69,7 +69,7 @@ class CartLine:
 
     def to_dict(self) -> dict:
         """Converte para dicionário simples, usado para salvar em JSON."""
-        return{
+        return {
             "restaurant_id": self.restaurant_id,
             "item_id": self.item_id,
             "name": self.name,
@@ -77,7 +77,7 @@ class CartLine:
             "emoji": self.emoji,
             "qty": self.qty,
         }
-    
+
     @staticmethod
     def from_dict(d: dict) -> "CartLine":
         """Reconstrói uma CartLine a partir do dicionário salvo em JSON."""
@@ -101,7 +101,7 @@ class Order:
     status: str = "Em preparo"
 
     def to_dict(self) -> dict:
-        """Converte para dicionário somples, usado para salvar em JSON."""
+        """Converte para dicionário simples, usado para salvar em JSON."""
         return {
             "id": self.id,
             "restaurant_name": self.restaurant_name,
@@ -114,18 +114,18 @@ class Order:
             "created_at": self.created_at,
             "status": self.status,
         }
-    
+
     @staticmethod
     def from_dict(d: dict) -> "Order":
-        """Reconstrói um order a partir do dicionário salvo em JSON."""
+        """Reconstrói um Order a partir do dicionário salvo em JSON."""
         return Order(**d)
 
-    
-#-------------------------------------------------------------------------
-#Dados fictícios (mock) usados no app - nenhuma marca real é usada
-#Em app real isso viria de uma API
-#Aqui é só uma fonte
-#-------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Dados fictícios (mock) usados no app — nenhuma marca real é usada.
+# Em um app de verdade, esta lista viria de uma API; aqui é só uma "fonte
+# de dados" fixa, usada pelo Controller (ver `controller.py`).
+# --------------------------------------------------------------------------
 RESTAURANTS: list[Restaurant] = [
     Restaurant(
         id="r1",
@@ -135,7 +135,7 @@ RESTAURANTS: list[Restaurant] = [
         rating=4.7,
         delivery_time="25-35 min",
         delivery_fee=6.90,
-        banner_colors=("#FF9F45", "#FF5E62"),
+        banner_colors=("#FF9F45", "#FF5E62"),  # laranja -> vermelho (quente, "forno")
         menu=[
             MenuItem("m1", "Pizza Margherita", "Molho de tomate, muçarela e manjericão", 42.90, "🍕"),
             MenuItem("m2", "Pizza Calabresa", "Calabresa fatiada, cebola e azeitona", 45.90, "🍕"),
@@ -144,16 +144,16 @@ RESTAURANTS: list[Restaurant] = [
     ),
     Restaurant(
         id="r2",
-        name="Burguer House",
+        name="Burger House",
         category="Hambúrguer",
         emoji="🍔",
         rating=4.5,
         delivery_time="20-30 min",
         delivery_fee=5.50,
-        banner_colors=("#FFB74D", "#E65100"),
+        banner_colors=("#FFB74D", "#E65100"),  # âmbar -> laranja queimado ("grelha")
         menu=[
-            MenuItem("m4", "Cheeseurguer Clássico", "Carne, queijo, alface e tomate", 28.90, "🍔"),
-            MenuItem("m5", "Duplo bacon", "Dois hambúrgueres, bacon e cheddar", 36.90, "🥓"),
+            MenuItem("m4", "Cheeseburger Clássico", "Carne, queijo, alface e tomate", 28.90, "🍔"),
+            MenuItem("m5", "Duplo Bacon", "Dois hambúrgueres, bacon e cheddar", 36.90, "🥓"),
             MenuItem("m6", "Batata frita grande", "Porção para compartilhar", 16.90, "🍟"),
         ],
     ),
@@ -165,11 +165,11 @@ RESTAURANTS: list[Restaurant] = [
         rating=4.8,
         delivery_time="35-45 min",
         delivery_fee=8.90,
-        banner_colors=("#26C6DA", "#1565C0"),
+        banner_colors=("#26C6DA", "#1565C0"),  # ciano -> azul (fresco, "mar")
         menu=[
             MenuItem("m7", "Combo 20 peças", "Sushis e sashimis variados", 59.90, "🍣"),
             MenuItem("m8", "Yakisoba de frango", "Macarrão oriental com legumes", 32.90, "🍜"),
-            MenuItem("m9", "Hot roll (8 un)", "empanado e frito", 24.90, "🍤"),
+            MenuItem("m9", "Hot roll (8un)", "Empanado e frito", 24.90, "🍤"),
         ],
     ),
     Restaurant(
@@ -180,7 +180,7 @@ RESTAURANTS: list[Restaurant] = [
         rating=4.6,
         delivery_time="15-25 min",
         delivery_fee=4.90,
-        banner_colors=("#9CC65", "#2E7D32"),
+        banner_colors=("#9CCC65", "#2E7D32"),  # verde claro -> verde escuro ("natural")
         menu=[
             MenuItem("m10", "Salada Caesar", "Frango grelhado, alface e croutons", 26.90, "🥗"),
             MenuItem("m11", "Bowl de quinoa", "Quinoa, legumes assados e grão-de-bico", 29.90, "🥣"),
@@ -191,11 +191,11 @@ RESTAURANTS: list[Restaurant] = [
         id="r5",
         name="Doce Encanto",
         category="Doces",
-        emoji="🥗",
+        emoji="🍰",
         rating=4.9,
         delivery_time="20-30 min",
         delivery_fee=5.90,
-        banner_colors=("#F06292", "#8E24AA"),
+        banner_colors=("#F06292", "#8E24AA"),  # rosa -> roxo ("doce/sobremesa")
         menu=[
             MenuItem("m13", "Fatia de bolo de chocolate", "Recheio de brigadeiro", 15.90, "🍫"),
             MenuItem("m14", "Cheesecake de morango", "Fatia individual", 17.90, "🍰"),

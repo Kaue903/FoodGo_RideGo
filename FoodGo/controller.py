@@ -35,7 +35,7 @@ from datetime import datetime
 
 import flet as ft
 
-from models import RESTAURANTS, CartItem, Order, Restaurant
+from models import RESTAURANTS, CartLine, Order, Restaurant
 
 CART_KEY = "foodgo_cart"
 ORDERS_KEY = "foodgo_orders"
@@ -58,7 +58,7 @@ class AppController:
 
     def __init__(self):
         self._restaurants: list[Restaurant] = RESTAURANTS
-        self._cart: list[CartItem] = []
+        self._cart: list[CartLine] = []
         self._orders: list[Order] = []
         self._delivery_fee: float = DELIVERY_FEE_DEFAULT
         self._address: str = ""
@@ -77,12 +77,12 @@ class AppController:
 
         Útil para salvar dados em disco sem travar a tela.
         """
-        task = asyncio.create_task(coro)
-        task.add_done_callback(_log_if_failed)
         def _log_if_failed(t: asyncio.Task) -> None:
             error = t.exception()
             if error is not None:
                 print(f"Erro ao salvar em disco: {error}")
+
+        task = asyncio.create_task(coro)
         task.add_done_callback(_log_if_failed)
 
     #--------Pestistencia (carregar/gravar carrinho e pedidos)--------
@@ -93,7 +93,7 @@ class AppController:
         raw_cart = await self._prefs.get(CART_KEY)
         raw_orders = await self._prefs.get(ORDERS_KEY)
         try:
-            self._cart = [CartItem.from_dict(d) for d in json.loads(raw_cart or "[]")] if raw_cart else []
+            self._cart = [CartLine.from_dict(d) for d in json.loads(raw_cart or "[]")] if raw_cart else []
         except(json.JSONDecodeError, TypeError):
             self._cart = []
         try:
@@ -142,7 +142,7 @@ class AppController:
 
     # Carrinho (adicionar/remover itens, calcular totais, etc.)
     @property
-    def cart(self) -> list[CartItem]:
+    def cart(self) -> list[CartLine]:
         """
         Retorna a lista de itens do carrinho.
         """
@@ -199,7 +199,7 @@ class AppController:
         """
         self._address = value
 
-    def qty_off(self, item_id: str) -> int:
+    def qty_of(self, item_id: str) -> int:
         """
         Retorna a quantidade do item com o ID fornecido no carrinho.
         """
@@ -220,11 +220,12 @@ class AppController:
         if line:
             line.qty += 1
         else:
-            self._cart.append(CartItem(
+            self._cart.append(CartLine(
                 restaurant_id=restaurant.id,
                 item_id=item.id,
                 name=item.name,
                 price=item.price,
+                emoji=item.emoji,
                 qty=1
             ))
         self._fire_and_forget(self.save_cart())
@@ -281,12 +282,12 @@ class AppController:
             restaurant_name=resturant_name,
             address=address,
             payment=payment,
-            items=self._cart.copy(),
+            items=[line.to_dict() for line in self._cart],
             subtotal=self.cart_subtotal,
             delivery_fee=self.delivery_fee,
             total=self.cart_subtotal + self.delivery_fee,
             status=STATUS_FLOW[0],
-            created_at=datetime.now()
+            created_at=datetime.now().isoformat(timespec="seconds")
         )
         self._orders.append(order)
         self._cart.clear()

@@ -1,0 +1,15 @@
+[project]
+name = "ridego"
+version = "1.0.0"
+dependencies = [
+    "flet",
+    "flet-geolocator",
+    "flet-map",
+]
+
+[tool.flet.flutter]
+dependencies = ["flet_geolocator", "flet_map"]
+
+[tool.flet.android.permission]
+"android.permission.ACCESS_FINE_LOCATION" = true
+"android.permission.ACCESS_COARSE_LOCATION" = true
